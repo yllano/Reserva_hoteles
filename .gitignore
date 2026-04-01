@@ -1,0 +1,15 @@
+# Editores de código
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos del Sistema Operativo
+.DS_Store
+Thumbs.db
+
+# Docker (si usas uno general)
+.docker/
+
+# Ignorar todos los .env por seguridad (capa extra)
+**/.env

@@ -1,0 +1,23 @@
+# Entornos virtuales
+venv/
+env/
+ENV/
+.venv/
+
+# Byte-compiled / optimizados (Python)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Base de datos local (SQLite)
+db.sqlite3
+db.sqlite3-journal
+
+# Logs y reportes
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Variables de entorno
+.env

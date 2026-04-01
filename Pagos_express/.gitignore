@@ -1,0 +1,17 @@
+# Dependencias
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Compilación y caché
+dist/
+build/
+.npm
+.eslintcache
+
+# Variables de entorno locales
+.env
+.env.local
