@@ -13,3 +13,8 @@ Thumbs.db
 
 # Ignorar todos los .env por seguridad (capa extra)
 **/.env
+
+# Credenciales y llaves de seguridad
+**/*serviceAccountKey.json
+**/*firebase-key.json
+**/config/*.json

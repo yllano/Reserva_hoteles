@@ -20,4 +20,6 @@ db.sqlite3-journal
 htmlcov/
 
 # Variables de entorno
-.env
+.env\
+# Credenciales\
+config/firebase-key.json
