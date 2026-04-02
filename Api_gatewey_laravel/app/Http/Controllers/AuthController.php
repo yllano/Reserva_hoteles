@@ -84,4 +84,16 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Logged out successfully']);
     }
+
+    public function forgotPassword(Request $request)
+    {
+        $response = Http::post($this->userServiceUrl . '/forgot-password/', $request->all());
+        return response()->json($response->json(), $response->status());
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $response = Http::post($this->userServiceUrl . '/reset-password/', $request->all());
+        return response()->json($response->json(), $response->status());
+    }
 }

@@ -11,6 +11,8 @@ Route::get('/user', function (Request $request) {
 Route::post('/login', [App\Http\Controllers\AuthController::class, 'login']);
 Route::post('/register', [App\Http\Controllers\AuthController::class, 'register']);
 Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::post('/forgot-password', [App\Http\Controllers\AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [App\Http\Controllers\AuthController::class, 'resetPassword']);
 
 // Gateway Proxy Routes
 Route::any('/hotels/{any?}', [App\Http\Controllers\ProxyController::class, 'proxyHotels'])->where('any', '.*');
