@@ -8,23 +8,23 @@
 
 | Servicio | Tecnología | Puerto | Base de Datos |
 |---|---|---|---|
-| API Gateway | Laravel (PHP) | `8000` | MySQL |
-| MS Usuarios | Django (Python) | `8001` | PostgreSQL |
-| MS Hoteles | Express (Node.js) | `8002` | Cloud Firestore |
-| MS Reservas | Flask (Python) | `8003` | MySQL |
-| MS Pagos | Express (Node.js) | `8004` | PostgreSQL |
-| MS Reseñas | Flask (Python) | `8005` | Cloud Firestore |
+| API Gateway | Laravel| `8000` | MySQL |
+| MS Usuarios | Django| `8001` | PostgreSQL |
+| MS Hoteles | Express| `8002` | Cloud Firestore |
+| MS Reservas | Flask| `8003` | MySQL |
+| MS Pagos | Express| `8004` | PostgreSQL |
+| MS Reseñas | Flask| `8005` | Cloud Firestore |
 
 ---
 
 ## 1. API Gateway (Laravel) — Puerto 8000
 
-El Gateway es el **único punto de entrada** al sistema. Gestiona autenticación con Laravel Sanctum y actúa como proxy inverso hacia los microservicios internos.
+El Gateway es el **único punto de entrada** al sistema. 
 
 ### Autenticación
 
 #### `POST /api/register`
-Registra un nuevo usuario. Crea el registro tanto en el Gateway (Sanctum) como en el MS Usuarios.
+
 
 - **Auth requerida**: No
 
@@ -171,11 +171,7 @@ Devuelve el perfil del usuario autenticado.
 | `404` | Usuario no encontrado |
 
 ---
-
-### Rutas de Proxy (Gateway → Microservicios)
-
-Las siguientes rutas son redirigidas automáticamente al microservicio correspondiente. El Gateway agrega el token `Bearer` internamente para rutas protegidas.
-
+### Rutas de Proxy
 | Prefijo del Gateway | Microservicio destino | Auth |
 |---|---|---|
 | `/api/hotels/*` | MS Hoteles (`:8002`) | No |

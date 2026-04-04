@@ -1,7 +1,7 @@
 # Informe de Pruebas de Rendimiento — Entrega #1
 
 > **Sistema**: Sistema de Reserva de Hoteles  
-> **Script**: `tests/performance_test.py` (automatizado)  
+> **Script**: `tests/performance_test.py`   
 > **Resultados JSON**: `tests/results/performance_results_<timestamp>.json`
 
 ---
@@ -84,17 +84,3 @@ Las pruebas fueron realizadas con un script Python automatizado (`tests/performa
 | Estrés | 30+ | ~40% | >5.0 s | ❌ Punto de quiebre |
 
 ---
-
-## 4. Conclusiones y Recomendaciones
-
-1. **Cuello de Botella Principal**: El servidor web de desarrollo PHP (`php artisan serve`) es single-process y no apto para cargas concurrentes. Es el único punto de falla del sistema actual.
-
-2. **Resiliencia de Microservicios**: Express (Node.js) y Flask (Python) demostraron alta resiliencia. Cuando el Gateway les entrega la petición, la procesan y responden sin errores.
-
-3. **Solución Proyectada (Entrega #2)**: Desplegar el Gateway con **Nginx + PHP-FPM** en contenedores Docker para habilitar el procesamiento paralelo de peticiones. Se estima que esto multiplicará por 10x la capacidad bajo carga moderada.
-
-4. **Reproducibilidad**: Para repetir las pruebas, ejecutar:
-   ```bash
-   python tests/performance_test.py
-   ```
-   Los resultados se guardan automáticamente en `tests/results/`.

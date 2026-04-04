@@ -1,23 +1,7 @@
 # Sistema de Reserva de Hoteles — Arquitectura de Microservicios
 
-Sistema distribuido compuesto por seis microservicios que implementa autenticación, gestión de hoteles, reservas, pagos y reseñas, con un API Gateway como único punto de entrada.
 
-## 🏗️ Arquitectura
-
-| Servicio | Tecnología | Puerto | Base de Datos |
-|---|---|---|---|
-| API Gateway | Laravel (PHP) | `8000` | MySQL |
-| MS Usuarios | Django (Python) | `8001` | PostgreSQL |
-| MS Hoteles | Express (Node.js) | `8002` | Cloud Firestore |
-| MS Reservas | Flask (Python) | `8003` | MySQL |
-| MS Pagos | Express (Node.js) | `8004` | PostgreSQL |
-| MS Reseñas | Flask (Python) | `8005` | Cloud Firestore |
-
-Para el diagrama completo, consulta [ARCHITECTURE.md](ARCHITECTURE.md).
-
----
-
-## ✅ Requisitos Previos
+## Requisitos Previos
 
 Asegúrate de tener instalado:
 
