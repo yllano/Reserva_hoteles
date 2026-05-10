@@ -71,17 +71,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Usuarios_django.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+import os
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'usuarios_db',
-        'USER': 'postgres',
-        'PASSWORD': '0806',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'NAME': os.environ.get('DB_NAME', 'usuarios_db'),
+        'USER': os.environ.get('DB_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', '0806'),
+        'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
 

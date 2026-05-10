@@ -1,0 +1,2 @@
+CREATE DATABASE usuarios_db;
+CREATE DATABASE pagos_db;

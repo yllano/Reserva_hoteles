@@ -18,3 +18,14 @@ Thumbs.db
 **/*serviceAccountKey.json
 **/*firebase-key.json
 **/config/*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env/
+
+# Tests
+.pytest_cache/
+tests/results/

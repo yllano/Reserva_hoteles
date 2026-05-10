@@ -2,12 +2,13 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 CORS(app)
 
 # Database config
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:0806@localhost/reserva_hotel'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'mysql+mysqlconnector://root:0806@localhost/reserva_hotel')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -31,8 +32,17 @@ def create_reservation():
     data = request.json
     user_id = data.get('user_id')
     hotel_id = data.get('hotel_id')
-    check_in = datetime.strptime(data.get('check_in'), '%Y-%m-%d').date()
-    check_out = datetime.strptime(data.get('check_out'), '%Y-%m-%d').date()
+    check_in_str = data.get('check_in')
+    check_out_str = data.get('check_out')
+
+    if not all([user_id, hotel_id, check_in_str, check_out_str]):
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    try:
+        check_in = datetime.strptime(check_in_str, '%Y-%m-%d').date()
+        check_out = datetime.strptime(check_out_str, '%Y-%m-%d').date()
+    except (ValueError, TypeError):
+        return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
 
     # Availability Logic (Simplistic: no existing confirmed overlap)
     overlap = Reservation.query.filter(
