@@ -12,8 +12,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Alias para el middleware de gateway
+        $middleware->alias([
+            'gateway' => \App\Http\Middleware\GatewayOnly::class,
+        ]);
+
+        // Siempre responder con JSON ante peticiones no autenticadas (sin redirect)
+        $middleware->redirectGuestsTo(fn() => response()->json([
+            'error'   => 'No autenticado',
+            'message' => 'Debes autenticarte a través del API Gateway para acceder a este recurso.',
+        ], 401));
     })
+
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
