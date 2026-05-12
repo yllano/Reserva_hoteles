@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Databases
   mysql:
@@ -74,7 +72,7 @@ services:
     depends_on:
       - postgres
 
-  reseñas:
+  resenas:
     build: ./Reseñas_flask
     container_name: reseñas_flask
     ports:
@@ -100,14 +98,14 @@ services:
       - HOTELS_SERVICE_URL=http://hoteles:8002
       - RESERVATIONS_SERVICE_URL=http://reservas:8003
       - PAYMENTS_SERVICE_URL=http://pagos:8004
-      - REVIEWS_SERVICE_URL=http://reseñas:8005
+      - REVIEWS_SERVICE_URL=http://resenas:8005
     depends_on:
       - mysql
       - usuarios
       - hoteles
       - reservas
       - pagos
-      - reseñas
+      - resenas
 
 volumes:
   mysql_data:
