@@ -10,7 +10,7 @@ def direct_user_error(request):
     return Response(
         {
             'error': 'Acceso directo no permitido',
-            'message': 'Este endpoint debe llamarse a través del API Gateway en http://localhost:8000/api/user',
+            'message': 'Esta petición debe pasar por el API Gateway en http://localhost:8000/api. No accedas directamente al microservicio.',
         },
         status=status.FORBIDDEN,
     )

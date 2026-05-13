@@ -32,5 +32,5 @@ RUN composer install --no-interaction --no-dev --optimize-autoloader
 # Expose port
 EXPOSE 8000
 
-# Command to run the application
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Run migrations and start the server
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000

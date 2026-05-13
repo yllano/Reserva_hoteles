@@ -7,6 +7,19 @@ import os
 app = Flask(__name__)
 CORS(app)
 
+# ── Validación de Gateway ──────────────────────────────────────────────────────
+GATEWAY_SECRET = os.environ.get('GATEWAY_SECRET', 'gateway-secret-reserva-hoteles-2024')
+
+@app.before_request
+def require_gateway_secret():
+    """Rechaza cualquier petición que no venga del API Gateway."""
+    secret = request.headers.get('X-Gateway-Secret', '')
+    if secret != GATEWAY_SECRET:
+        return jsonify({
+            'error': 'Acceso directo no permitido',
+            'message': 'Esta petición debe pasar por el API Gateway en http://localhost:8000/api. No accedas directamente al microservicio.',
+        }), 401
+
 # Database config
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'mysql+mysqlconnector://root:0806@localhost/reserva_hotel')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

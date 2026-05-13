@@ -7,7 +7,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const RESERVATION_SERVICE_URL = 'http://localhost:8003/api/reservations';
+// ── Validación de Gateway ───────────────────────────────────────────
+const GATEWAY_SECRET = process.env.GATEWAY_SECRET || 'gateway-secret-reserva-hoteles-2024';
+
+app.use((req, res, next) => {
+  const secret = req.headers['x-gateway-secret'];
+  if (secret !== GATEWAY_SECRET) {
+    return res.status(401).json({
+      error: 'Acceso directo no permitido',
+      message: 'Esta petición debe pasar por el API Gateway en http://localhost:8000/api. No accedas directamente al microservicio.',
+    });
+  }
+  next();
+});
+
+// URL interna del microservicio de reservas (nombre del servicio Docker)
+const RESERVATION_SERVICE_URL = process.env.RESERVATIONS_SERVICE_URL
+  ? `${process.env.RESERVATIONS_SERVICE_URL}/api/reservations`
+  : 'http://reservas:8003/api/reservations';
 
 // Initialize payments table
 const initDb = async () => {

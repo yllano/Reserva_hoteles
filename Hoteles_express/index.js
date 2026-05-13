@@ -16,6 +16,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ── Validación de Gateway ───────────────────────────────────────────
+const GATEWAY_SECRET = process.env.GATEWAY_SECRET || 'gateway-secret-reserva-hoteles-2024';
+
+app.use((req, res, next) => {
+  const secret = req.headers['x-gateway-secret'];
+  if (secret !== GATEWAY_SECRET) {
+    return res.status(401).json({
+      error: 'Acceso directo no permitido',
+      message: 'Esta petición debe pasar por el API Gateway en http://localhost:8000/api. No accedas directamente al microservicio.',
+    });
+  }
+  next();
+});
+
 const hotelRoutes = require('./routes/hotels');
 app.use('/api/hotels', hotelRoutes);
 

@@ -20,5 +20,5 @@ COPY . .
 # Expose port
 EXPOSE 8001
 
-# Command to run the application
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8001"]
+# Run migrations and start the server
+CMD python manage.py migrate --run-syncdb && python manage.py runserver 0.0.0.0:8001

@@ -7,6 +7,19 @@ from google.oauth2 import service_account
 app = Flask(__name__)
 CORS(app)
 
+# ── Validación de Gateway ──────────────────────────────────────────────────────
+GATEWAY_SECRET = os.environ.get('GATEWAY_SECRET', 'gateway-secret-reserva-hoteles-2024')
+
+@app.before_request
+def require_gateway_secret():
+    """Rechaza cualquier petición que no venga del API Gateway."""
+    secret = request.headers.get('X-Gateway-Secret', '')
+    if secret != GATEWAY_SECRET:
+        return jsonify({
+            'error': 'Acceso directo no permitido',
+            'message': 'Esta petición debe pasar por el API Gateway en http://localhost:8000/api. No accedas directamente al microservicio.',
+        }), 401
+
 # Firebase configuration
 key_path = os.path.join(os.path.dirname(__file__), 'config', 'firebase-key.json')
 credentials = service_account.Credentials.from_service_account_file(key_path)

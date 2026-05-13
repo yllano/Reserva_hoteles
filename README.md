@@ -123,5 +123,5 @@ Simulan tráfico masivo para identificar cuellos de botella en el procesamiento 
 ## 📄 Documentación Adicional
 *   **Arquitectura Detallada**: [ARCHITECTURE.md](ARCHITECTURE.md)
 *   **Catálogo de Endpoints**: [DOCS/ENDPOINTS.md](DOCS/ENDPOINTS.md)
-*   **Reporte de Rendimiento**: [DOCS/PERFORMANCE_REPORT.md](DOCS/PERFORMANCE_REPORT.md)
+
 

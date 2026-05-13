@@ -4,14 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\Concerns\ForwardsToMicroservice;
 
 class HotelesController extends Controller
 {
+    use ForwardsToMicroservice;
     private $url;
 
     public function __construct()
     {
-        $this->url = env('HOTELS_SERVICE_URL', 'http://localhost:8002') . '/api/hotels';
+        $this->url = config('services.hotels.url', 'http://localhost:8002') . '/api/hotels';
     }
 
     /**
@@ -19,7 +21,7 @@ class HotelesController extends Controller
      */
     public function index(Request $request)
     {
-        $res = Http::withToken($request->bearerToken())
+        $res = $this->gatewayHttp()->withToken($request->bearerToken())
             ->get($this->url, array_merge(
                 $request->query(),
                 ['user_id' => auth()->id()]
@@ -33,7 +35,7 @@ class HotelesController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $res = Http::withToken($request->bearerToken())
+        $res = $this->gatewayHttp()->withToken($request->bearerToken())
             ->get("{$this->url}/{$id}", ['user_id' => auth()->id()]);
 
         return response()->json($res->json(), $res->status());
@@ -47,7 +49,7 @@ class HotelesController extends Controller
         $data = $request->all();
         $data['user_id'] = auth()->id();
 
-        $res = Http::withToken($request->bearerToken())
+        $res = $this->gatewayHttp()->withToken($request->bearerToken())
             ->post($this->url, $data);
 
         return response()->json($res->json(), $res->status());
@@ -61,7 +63,7 @@ class HotelesController extends Controller
         $data = $request->all();
         $data['user_id'] = auth()->id();
 
-        $res = Http::withToken($request->bearerToken())
+        $res = $this->gatewayHttp()->withToken($request->bearerToken())
             ->put("{$this->url}/{$id}", $data);
 
         return response()->json($res->json(), $res->status());
@@ -72,7 +74,7 @@ class HotelesController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $res = Http::withToken($request->bearerToken())
+        $res = $this->gatewayHttp()->withToken($request->bearerToken())
             ->delete("{$this->url}/{$id}", ['user_id' => auth()->id()]);
 
         return response()->json($res->json(), $res->status());

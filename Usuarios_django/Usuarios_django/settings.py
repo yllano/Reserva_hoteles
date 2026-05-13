@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-*9#x#+%&5a2(h9^$f92==0)al$0im#15vo1_w!+$x55t*owmq!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'users.middleware.GatewayAuthMiddleware',   # ← Valida X-Gateway-Secret
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

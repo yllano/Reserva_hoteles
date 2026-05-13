@@ -7,14 +7,21 @@ use Illuminate\Support\Facades\Http;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Http\Controllers\Concerns\ForwardsToMicroservice;
 
 class AuthController extends Controller
 {
-    private $userServiceUrl = 'http://localhost:8001/api/users';
+    use ForwardsToMicroservice;
+    private $userServiceUrl;
+
+    public function __construct()
+    {
+        $this->userServiceUrl = config('services.users.url') . '/api/users';
+    }
 
     public function register(Request $request)
     {
-        $response = Http::post($this->userServiceUrl . '/register/', $request->all());
+        $response = $this->gatewayHttp()->post($this->userServiceUrl . '/register/', $request->all());
 
         if ($response->successful()) {
             // Also create a local user record in Laravel for token mapping (Sanctum needs a model)
@@ -46,7 +53,7 @@ class AuthController extends Controller
         ]);
 
         // Validate credentials against Django User MS
-        $response = Http::post($this->userServiceUrl . '/login/', [
+        $response = $this->gatewayHttp()->post($this->userServiceUrl . '/login/', [
             'email' => $request->email,
             'password' => $request->password,
         ]);
@@ -87,7 +94,7 @@ class AuthController extends Controller
 
     public function forgotPassword(Request $request)
     {
-        $response = Http::post($this->userServiceUrl . '/forgot-password/', $request->all());
+        $response = $this->gatewayHttp()->post($this->userServiceUrl . '/forgot-password/', $request->all());
         return response()->json($response->json(), $response->status());
     }
 
