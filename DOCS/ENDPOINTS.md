@@ -21,6 +21,9 @@
 
 El Gateway es el **único punto de entrada** al sistema. 
 
+> **⚠️ Importante para pruebas (Thunder Client/Postman)**: 
+> Siempre debes incluir el Header `Accept: application/json` en todas tus peticiones. Si omites este header en una ruta protegida sin enviar el Token, Laravel fallará con un error 500 (`Route [login] not defined`) en lugar de devolver el error 401 correcto.
+
 ### Autenticación
 
 #### `POST /api/register`
@@ -172,13 +175,14 @@ Devuelve el perfil del usuario autenticado.
 
 ---
 ### Rutas de Proxy
+Todas estas rutas están protegidas por el middleware `auth:sanctum` en el Gateway, por lo que requieren enviar el Header `Authorization: Bearer <token>`.
+
 | Prefijo del Gateway | Microservicio destino | Auth |
 |---|---|---|
-| `/api/hotels/*` | MS Hoteles (`:8002`) | No |
-| `/api/users/*` | MS Usuarios (`:8001`) | No |
+| `/api/hotels/*` | MS Hoteles (`:8002`) | **Sí** |
 | `/api/reservations/*` | MS Reservas (`:8003`) | **Sí** |
 | `/api/payments/*` | MS Pagos (`:8004`) | **Sí** |
-| `/api/reviews/*` | MS Reseñas (`:8005`) | No |
+| `/api/reviews/*` | MS Reseñas (`:8005`) | **Sí** |
 
 ---
 
