@@ -5,6 +5,16 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import RegisterSerializer, UserSerializer
 
+
+def direct_user_error(request):
+    return Response(
+        {
+            'error': 'Acceso directo no permitido',
+            'message': 'Este endpoint debe llamarse a través del API Gateway en http://localhost:8000/api/user',
+        },
+        status=status.FORBIDDEN,
+    )
+
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 

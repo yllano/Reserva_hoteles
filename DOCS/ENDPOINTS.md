@@ -8,26 +8,49 @@
 
 | Servicio | Tecnología | Puerto | Base de Datos |
 |---|---|---|---|
-| API Gateway | Laravel| `8000` | MySQL |
-| MS Usuarios | Django| `8001` | PostgreSQL |
-| MS Hoteles | Express| `8002` | Cloud Firestore |
-| MS Reservas | Flask| `8003` | MySQL |
-| MS Pagos | Express| `8004` | PostgreSQL |
-| MS Reseñas | Flask| `8005` | Cloud Firestore |
+| API Gateway | Laravel | `8000` | MySQL |
+| MS Usuarios | Django | `8001` | PostgreSQL |
+| MS Hoteles | Express | `8002` | Cloud Firestore |
+| MS Reservas | Flask | `8003` | MySQL |
+| MS Pagos | Express | `8004` | PostgreSQL |
+| MS Reseñas | Flask | `8005` | Cloud Firestore |
+
+---
+
+## Uso en Thunder Client / Postman
+
+Para probar todo el flujo en el Gateway, establece estos headers en cada petición:
+
+- `Accept: application/json`
+- `Content-Type: application/json`
+- `Authorization: Bearer <token>` para rutas protegidas
+
+> Nota: las rutas públicas de autenticación (`/register`, `/login`, `/forgot-password`, `/reset-password`) no requieren `Authorization`.
+
+---
+
+## Flujo recomendado para pruebas
+
+1. `POST /api/register` — crear usuario nuevo.
+2. `POST /api/login` — obtener `access_token`.
+3. Guardar el token como `Bearer <token>`.
+4. `GET /api/user` — verificar datos del usuario.
+5. `POST /api/hotels` — crear un hotel.
+6. `POST /api/reservations` — crear reserva.
+7. `POST /api/payments` — procesar el pago y confirmar la reserva.
+8. `POST /api/reviews` — publicar una reseña.
 
 ---
 
 ## 1. API Gateway (Laravel) — Puerto 8000
 
-El Gateway es el **único punto de entrada** al sistema. 
+El Gateway es el **único punto de entrada** al sistema.
 
-> **⚠️ Importante para pruebas (Thunder Client/Postman)**: 
-> Siempre debes incluir el Header `Accept: application/json` en todas tus peticiones. Si omites este header en una ruta protegida sin enviar el Token, Laravel fallará con un error 500 (`Route [login] not defined`) en lugar de devolver el error 401 correcto.
+> ⚠️ Importante: siempre usa `Accept: application/json`. Si omites este header en una ruta protegida sin token, Laravel puede devolver un `500` en lugar de un `401`.
 
 ### Autenticación
 
 #### `POST /api/register`
-
 
 - **Auth requerida**: No
 
@@ -45,7 +68,7 @@ El Gateway es el **único punto de entrada** al sistema.
 **Respuesta exitosa** `201 Created`:
 ```json
 {
-  "token": "1|abc123...",
+  "message": "User registered successfully",
   "user": {
     "id": 1,
     "username": "juanperez",
@@ -57,12 +80,11 @@ El Gateway es el **único punto de entrada** al sistema.
 **Errores**:
 | Código | Descripción |
 |---|---|
-| `422` | Campos faltantes o email ya registrado |
+| `422` | Campos faltantes o formato inválido |
 
 ---
 
 #### `POST /api/login`
-Autentica al usuario y devuelve un token de acceso Sanctum.
 
 - **Auth requerida**: No
 
@@ -77,12 +99,9 @@ Autentica al usuario y devuelve un token de acceso Sanctum.
 **Respuesta exitosa** `200 OK`:
 ```json
 {
-  "token": "2|xyz789...",
-  "user": {
-    "id": 1,
-    "username": "juanperez",
-    "email": "juan@correo.com"
-  }
+  "access_token": "1|abc123...",
+  "token_type": "Bearer",
+  "user_id": 1
 }
 ```
 
@@ -93,38 +112,38 @@ Autentica al usuario y devuelve un token de acceso Sanctum.
 
 ---
 
-#### `POST /api/logout`
-Revoca el token de acceso actual del usuario.
-
-- **Auth requerida**: Sí (`Bearer Token`)
-
-**Respuesta exitosa** `200 OK`:
-```json
-{ "message": "Sesión cerrada correctamente." }
-```
-
----
-
 #### `GET /api/user`
-Devuelve el perfil del usuario autenticado.
 
 - **Auth requerida**: Sí (`Bearer Token`)
+
+**Headers**:
+- `Authorization: Bearer <access_token>`
 
 **Respuesta exitosa** `200 OK`:
 ```json
 {
   "id": 1,
-  "username": "juanperez",
+  "name": "juanperez",
   "email": "juan@correo.com"
 }
 ```
 
 ---
 
-### Recuperación de Contraseña
+#### `POST /api/logout`
+
+- **Auth requerida**: Sí (`Bearer Token`)
+
+**Respuesta exitosa** `200 OK`:
+```json
+{ "message": "Logged out successfully" }
+```
+
+---
+
+### Recuperación de contraseña
 
 #### `POST /api/forgot-password`
-**Paso 1**: Dado un email, devuelve la pregunta de seguridad del usuario.
 
 - **Auth requerida**: No
 
@@ -149,7 +168,6 @@ Devuelve el perfil del usuario autenticado.
 ---
 
 #### `POST /api/reset-password`
-**Paso 2**: Verifica la respuesta de seguridad y actualiza la contraseña.
 
 - **Auth requerida**: No
 
@@ -174,24 +192,172 @@ Devuelve el perfil del usuario autenticado.
 | `404` | Usuario no encontrado |
 
 ---
-### Rutas de Proxy
-Todas estas rutas están protegidas por el middleware `auth:sanctum` en el Gateway, por lo que requieren enviar el Header `Authorization: Bearer <token>`.
 
-| Prefijo del Gateway | Microservicio destino | Auth |
-|---|---|---|
-| `/api/hotels/*` | MS Hoteles (`:8002`) | **Sí** |
-| `/api/reservations/*` | MS Reservas (`:8003`) | **Sí** |
-| `/api/payments/*` | MS Pagos (`:8004`) | **Sí** |
-| `/api/reviews/*` | MS Reseñas (`:8005`) | **Sí** |
+## 2. Rutas protegidas del Gateway
+
+Estas rutas se envían al microservicio correspondiente y requieren `Authorization: Bearer <token>`.
+
+### Hoteles — `/api/hotels`
+
+#### `GET /api/hotels`
+Lista todos los hoteles.
+
+**Query opcional**:
+- `city`: filtra por ciudad
+
+**Respuesta exitosa** `200 OK`:
+```json
+[
+  {
+    "id": "abc123",
+    "name": "Hotel El Dorado",
+    "city": "Bogotá",
+    "price_per_night": 250000,
+    "rating": 4.5,
+    "description": "Hotel en el centro histórico."
+  }
+]
+```
+
+#### `POST /api/hotels`
+
+**Body (JSON)**:
+```json
+{
+  "name": "Hotel El Dorado",
+  "city": "Bogotá",
+  "price_per_night": 250000,
+  "rating": 4.5,
+  "description": "Hotel en el centro histórico."
+}
+```
+
+**Respuesta exitosa** `201 Created`:
+```json
+{
+  "id": "newFirestoreId",
+  "name": "Hotel El Dorado",
+  "city": "Bogotá",
+  "price_per_night": 250000,
+  "rating": 4.5,
+  "description": "Hotel en el centro histórico."
+}
+```
+
+#### `GET /api/hotels/{id}`
+
+#### `PUT /api/hotels/{id}`
+
+#### `DELETE /api/hotels/{id}`
 
 ---
 
-## 2. MS Usuarios (Django) — Puerto 8001
+### Reservas — `/api/reservations`
 
-> Accesible públicamente via Gateway en `/api/users/*` o directamente en `http://localhost:8001/api/users/*`.
+#### `POST /api/reservations`
+Crea una reserva para el usuario autenticado.
+
+**Body (JSON)**:
+```json
+{
+  "hotel_id": "abc123",
+  "check_in": "2026-05-10",
+  "check_out": "2026-05-15"
+}
+```
+
+**Respuesta exitosa** `201 Created`:
+```json
+{
+  "id": 42,
+  "user_id": 1,
+  "hotel_id": "abc123",
+  "status": "pending"
+}
+```
+
+#### `GET /api/reservations`
+Lista las reservas del usuario autenticado.
+
+**Respuesta exitosa** `200 OK`:
+```json
+[
+  {
+    "id": 42,
+    "hotel_id": "abc123",
+    "check_in": "2026-05-10",
+    "check_out": "2026-05-15",
+    "status": "pending"
+  }
+]
+```
+
+> Nota: el gateway agrega automáticamente `user_id` desde el token.
+
+---
+
+### Pagos — `/api/payments`
+
+#### `POST /api/payments`
+Procesa el pago y confirma la reserva.
+
+**Body (JSON)**:
+```json
+{
+  "reservation_id": 42,
+  "amount": 1250000
+}
+```
+
+**Respuesta exitosa** `201 Created`:
+```json
+{
+  "message": "Payment processed and reservation confirmed",
+  "transaction": {
+    "id": 7,
+    "reservation_id": 42,
+    "amount": "1250000.00",
+    "status": "success",
+    "created_at": "2026-05-10T14:30:00Z"
+  }
+}
+```
+
+---
+
+### Reseñas — `/api/reviews`
+
+#### `POST /api/reviews`
+Publica una reseña de hotel.
+
+**Body (JSON)**:
+```json
+{
+  "hotel_id": "abc123",
+  "rating": 5,
+  "comment": "Excelente hotel, muy recomendado."
+}
+```
+
+**Respuesta exitosa** `201 Created`:
+```json
+{
+  "id": "firestoreDocId",
+  "hotel_id": "abc123",
+  "user_id": 1,
+  "rating": 5,
+  "comment": "Excelente hotel, muy recomendado."
+}
+```
+
+---
+
+## 3. MS Usuarios (Django) — Puerto 8001
+
+> Uso directo solo para depuración. Para el flujo normal, usa el Gateway en `http://localhost:8000/api`.
 
 #### `POST /api/users/register/`
-Crea un usuario en la base de datos PostgreSQL con su perfil de seguridad.
+Crea un usuario en PostgreSQL.
 
 **Body (JSON)**:
 ```json
@@ -213,10 +379,7 @@ Crea un usuario en la base de datos PostgreSQL con su perfil de seguridad.
 }
 ```
 
----
-
 #### `POST /api/users/login/`
-Valida credenciales. Uso **interno** del Gateway.
 
 **Body (JSON)**:
 ```json
@@ -227,31 +390,20 @@ Valida credenciales. Uso **interno** del Gateway.
 ```json
 {
   "status": "OK",
-  "user": { "id": 1, "username": "juanperez", "email": "juan@correo.com" }
+  "user": {
+    "id": 1,
+    "username": "juanperez",
+    "email": "juan@correo.com"
+  }
 }
 ```
 
-**Errores**:
-| Código | Descripción |
-|---|---|
-| `401` | Credenciales inválidas |
-
----
-
-#### `GET /api/users/profile/`
-Devuelve los datos del usuario autenticado vía token DRF.
-
-- **Auth requerida**: Sí (Token DRF)
-
-**Respuesta exitosa** `200 OK`:
-```json
-{ "id": 1, "username": "juanperez", "email": "juan@correo.com" }
-```
-
----
-
 #### `POST /api/users/forgot-password/`
-**Body**: `{ "email": "juan@correo.com" }`
+
+**Body**:
+```json
+{ "email": "juan@correo.com" }
+```
 
 **Respuesta exitosa** `200 OK`:
 ```json
@@ -259,6 +411,22 @@ Devuelve los datos del usuario autenticado vía token DRF.
   "email": "juan@correo.com",
   "security_question": "¿Cuál es el nombre de tu mascota?"
 }
+```
+
+#### `POST /api/users/reset-password/`
+
+**Body**:
+```json
+{
+  "email": "juan@correo.com",
+  "security_answer": "firulais",
+  "new_password": "NuevaPass456"
+}
+```
+
+**Respuesta exitosa** `200 OK`:
+```json
+{ "message": "Contraseña actualizada correctamente." }
 ```
 
 ---

@@ -4,14 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\Concerns\ForwardsToMicroservice;
 
 class ReservasController extends Controller
 {
+    use ForwardsToMicroservice;
     private $url;
 
     public function __construct()
     {
-        $this->url = env('RESERVATIONS_SERVICE_URL', 'http://localhost:8003') . '/api/reservations';
+        $this->url = config('services.reservations.url', 'http://localhost:8003') . '/api/reservations';
     }
 
     /**
@@ -19,11 +21,9 @@ class ReservasController extends Controller
      */
     public function index(Request $request)
     {
-        $res = Http::withToken($request->bearerToken())
-            ->get($this->url, array_merge(
-                $request->query(),
-                ['user_id' => auth()->id()]
-            ));
+        $userId = auth()->id();
+        $res = $this->gatewayHttp()->withToken($request->bearerToken())
+            ->get("{$this->url}/user/{$userId}");
 
         return response()->json($res->json(), $res->status());
     }
@@ -33,7 +33,7 @@ class ReservasController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $res = Http::withToken($request->bearerToken())
+        $res = $this->gatewayHttp()->withToken($request->bearerToken())
             ->get("{$this->url}/{$id}", ['user_id' => auth()->id()]);
 
         return response()->json($res->json(), $res->status());
@@ -47,7 +47,7 @@ class ReservasController extends Controller
         $data = $request->all();
         $data['user_id'] = auth()->id();
 
-        $res = Http::withToken($request->bearerToken())
+        $res = $this->gatewayHttp()->withToken($request->bearerToken())
             ->post($this->url, $data);
 
         return response()->json($res->json(), $res->status());
@@ -61,7 +61,7 @@ class ReservasController extends Controller
         $data = $request->all();
         $data['user_id'] = auth()->id();
 
-        $res = Http::withToken($request->bearerToken())
+        $res = $this->gatewayHttp()->withToken($request->bearerToken())
             ->put("{$this->url}/{$id}", $data);
 
         return response()->json($res->json(), $res->status());
@@ -72,7 +72,7 @@ class ReservasController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $res = Http::withToken($request->bearerToken())
+        $res = $this->gatewayHttp()->withToken($request->bearerToken())
             ->delete("{$this->url}/{$id}", ['user_id' => auth()->id()]);
 
         return response()->json($res->json(), $res->status());
@@ -83,7 +83,7 @@ class ReservasController extends Controller
      */
     public function cancelarMasivo(Request $request)
     {
-        $res = Http::withToken($request->bearerToken())
+        $res = $this->gatewayHttp()->withToken($request->bearerToken())
             ->post("{$this->url}/masivo", [
                 'ids'     => $request->ids,
                 'user_id' => auth()->id(),
