@@ -8,7 +8,7 @@ services:
       MYSQL_ROOT_PASSWORD: '0806'
       MYSQL_DATABASE: 'reserva_hotel'
     ports:
-      - '3306:3306'
+      - '3307:3306'
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -74,7 +74,7 @@ services:
 
   resenas:
     build: ./Reseñas_flask
-    container_name: reseñas_flask
+    container_name: resenas_flask
     ports:
       - '8005:8005'
     # Firebase key is copied into the image via Dockerfile

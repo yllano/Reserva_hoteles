@@ -23,6 +23,13 @@ Asegúrate de tener instalado:
 
 La forma más rápida de iniciar todo el ecosistema es utilizando Docker Compose.
 
+### 0. Configuración Inicial (¡Importante!)
+Antes de levantar los contenedores, debes configurar las credenciales secretas que no están incluidas en el repositorio por seguridad:
+1. Pide al administrador las credenciales de Firebase o usa unas propias.
+2. Coloca la llave para el MS Hoteles en: `Hoteles_express/serviceAccountKey.json`.
+3. Coloca la llave para el MS Reseñas en: `Reseñas_flask/config/firebase-key.json`.
+4. Copia los archivos `.env.example` y renómbralos a `.env` en los servicios correspondientes (`Api_gatewey_laravel`, `Pagos_express`, `Reseñas_flask`).
+
 ### 1. Construir e Iniciar Contenedores
 Desde la raíz del proyecto:
 ```bash
